@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.me.mapper.CashierMapper">
+
+    <select id="listCashierData" resultType="com.me.entity.Cashier">
+        SELECT
+            cashierId_n AS cashierId,
+            name_x AS name,
+            create_dt AS createDate,
+            DATE_FORMAT(create_dt, '%Y-%m-%d %H:%i') AS createDateStr
+        FROM thcs_cashier
+        ORDER BY create_dt DESC
+        LIMIT 0, 300
+    </select>
+    
+    <insert id="saveCashier" parameterType="com.me.entity.Cashier">
+        INSERT INTO thcs_cashier
+        (
+            name_x,
+            create_dt
+        )
+        VALUES
+        (
+            #{name, jdbcType=VARCHAR},
+            #{createDate, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <delete id="deleteByCashierId" parameterType="java.lang.Integer">
+        DELETE FROM thcs_cashier WHERE cashierId_n = #{cashierId, jdbcType=INTEGER}
+    </delete>
+
+    <select id="countByName" parameterType="java.lang.String" resultType="int">
+        SELECT COUNT(*) FROM thcs_cashier WHERE name_x = #{name, jdbcType=VARCHAR}
+    </select>
+
+</mapper>

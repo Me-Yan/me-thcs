@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.me.mapper.TypeMapper">
+
+    <select id="listTypeData" resultType="com.me.entity.Type">
+        SELECT
+            typeId_n AS typeId,
+            typeName_x AS typeName,
+            create_dt AS createDate,
+            DATE_FORMAT(create_dt, '%Y-%m-%d %H:%i') AS createDateStr
+        FROM thcs_type
+        ORDER BY create_dt DESC
+        LIMIT 0, 300
+    </select>
+
+    <insert id="saveType" parameterType="com.me.entity.Type">
+        INSERT INTO thcs_type
+        (
+            typeName_x,
+            create_dt
+        )
+        VALUES
+        (
+            #{typeName, jdbcType=VARCHAR},
+            #{createDate, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <delete id="deleteByTypeId" parameterType="java.lang.Integer">
+        DELETE FROM thcs_type WHERE typeId_n = #{typeId, jdbcType=INTEGER}
+    </delete>
+
+    <select id="countByName" parameterType="java.lang.String" resultType="int">
+        SELECT COUNT(*) FROM thcs_type WHERE typeName_x = #{typeName, jdbcType=VARCHAR}
+    </select>
+
+</mapper>

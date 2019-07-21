@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.me.mapper.TableMapper">
+
+    <select id="getByTableId" parameterType="java.lang.Integer" resultType="com.me.entity.Table">
+        SELECT
+            tableId_n AS tableId,
+            name_x AS name,
+            typeName_x AS typeName,
+            note_x AS note,
+            status_c AS status,
+            create_dt AS createDate,
+            DATE_FORMAT(create_dt, '%Y-%m-%d %H:%i') AS createDateStr
+        FROM thcs_table
+        WHERE tableId_n = #{tableId, jdbcType=INTEGER}
+    </select>
+
+    <select id="listTableData" resultType="com.me.entity.Table">
+        SELECT
+            tableId_n AS tableId,
+            name_x AS name,
+            typeName_x AS typeName,
+            note_x AS note,
+            status_c AS status,
+            create_dt AS createDate,
+            DATE_FORMAT(create_dt, '%Y-%m-%d %H:%i') AS createDateStr
+        FROM thcs_table
+        WHERE status_c != #{excludeTableStatus, jdbcType=VARCHAR}
+        ORDER BY create_dt ASC
+        LIMIT 0, 300
+    </select>
+
+    <select id="listValidData" resultType="com.me.entity.Table">
+        SELECT
+            t.tableId_n AS tableId,
+            t.name_x AS name,
+            t.typeName_x AS typeName,
+            t.note_x AS note,
+            t.status_c AS status,
+            t.create_dt AS createDate,
+            DATE_FORMAT(t.create_dt, '%Y-%m-%d %H:%i') AS createDateStr,
+            (SELECT DATE_FORMAT(o.start_dt, '%H:%i') FROM thcs_order o WHERE o.tableId_n = t.tableId_n AND o.status_c = #{validStatus, jdbcType=VARCHAR}) AS startTimeStr,
+            (SELECT o.orderId_n FROM thcs_order o WHERE o.tableId_n = t.tableId_n AND o.status_c = #{validStatus, jdbcType=VARCHAR}) AS orderId
+        FROM thcs_table t
+        WHERE t.status_c != #{excludeTableStatus, jdbcType=VARCHAR}
+        ORDER BY t.create_dt ASC
+        LIMIT 0, 300
+    </select>
+
+    <select id="listTableInStatus" resultType="com.me.entity.Table">
+        SELECT
+            tableId_n AS tableId,
+            name_x AS name,
+            typeName_x AS typeName,
+            note_x AS note,
+            status_c AS status,
+            create_dt AS createDate,
+            DATE_FORMAT(create_dt, '%Y-%m-%d %H:%i') AS createDateStr
+        FROM thcs_table
+        WHERE status_c = #{status, jdbcType=VARCHAR} AND tableId_n != #{tableId, jdbcType=INTEGER}
+        ORDER BY create_dt ASC
+        LIMIT 0, 300
+    </select>
+
+    <select id="countTableInStatus" resultType="int">
+        SELECT count(*) FROM thcs_table WHERE status_c = #{status, jdbcType=VARCHAR} AND tableId_n != #{tableId, jdbcType=INTEGER}
+    </select>
+
+    <insert id="saveTable" parameterType="com.me.entity.Table">
+        INSERT INTO thcs_table
+        (
+            name_x,
+            typeName_x,
+            note_x,
+            status_c,
+            create_dt
+        )
+        VALUES
+        (
+            #{name, jdbcType=VARCHAR},
+            #{typeName, jdbcType=VARCHAR},
+            #{note, jdbcType=VARCHAR},
+            #{status, jdbcType=VARCHAR},
+            #{createDate, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="deleteByTableId">
+        UPDATE thcs_table SET status_c = #{deletedStatus, jdbcType=VARCHAR} WHERE tableId_n = #{tableId, jdbcType=INTEGER}
+    </update>
+
+    <select id="countByName" resultType="int">
+        SELECT COUNT(*) FROM thcs_table WHERE name_x = #{name, jdbcType=VARCHAR} AND status_c != #{invalidStatus, jdbcType=VARCHAR}
+    </select>
+    
+    <update id="updateStatusByTableId">
+        UPDATE thcs_table SET status_c = #{status, jdbcType=VARCHAR} WHERE tableId_n = #{tableId, jdbcType=INTEGER}
+    </update>
+
+</mapper>

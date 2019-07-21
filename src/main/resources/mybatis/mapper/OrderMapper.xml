@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.me.mapper.OrderMapper">
+
+    <insert id="saveOrder" parameterType="com.me.entity.Order" useGeneratedKeys="true" keyColumn="orderId_n" keyProperty="orderId">
+        INSERT INTO thcs_order
+        (
+            tableId_n,
+            fromId_n,
+            start_dt,
+            status_c,
+            create_dt
+        )
+        VALUES
+        (
+            #{tableId, jdbcType=INTEGER},
+            #{fromId, jdbcType=INTEGER},
+            #{startDate, jdbcType=TIMESTAMP},
+            #{status, jdbcType=VARCHAR},
+            #{createDate, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <select id="getByOrderId" parameterType="java.lang.Integer" resultType="com.me.entity.Order">
+        SELECT
+            o.orderId_n AS orderId,
+            o.tableId_n AS tableId,
+            o.fromId_n AS fromId,
+            o.start_dt AS startDate,
+            o.end_dt AS endDate,
+            o.totalMinute_n AS totalMinute,
+            o.cashier_x AS cashier,
+            o.evaluateCost_n AS evaluateCost,
+            o.otherCost_n AS otherCost,
+            o.amount_n AS amount,
+            o.actualAmount_n AS actualAmount,
+            o.note_x AS note,
+            o.status_c AS status,
+            o.create_dt AS createDate,
+            t.name_x AS tableName,
+            t.typeName_x AS typeName,
+            DATE_FORMAT(o.start_dt, '%Y-%m-%d %H:%i') AS startDateStr,
+            DATE_FORMAT(o.end_dt, '%Y-%m-%d %H:%i') AS endDateStr,
+            DATE_FORMAT(o.create_dt, '%Y-%m-%d %H:%i') AS createDateStr
+        FROM thcs_order o
+        LEFT JOIN thcs_table t ON t.tableId_n = o.tableId_n
+        WHERE o.orderId_n = #{orderId, jdbcType=INTEGER}
+    </select>
+
+    <select id="getByTableId" resultType="com.me.entity.Order">
+        SELECT
+            o.orderId_n AS orderId,
+            o.tableId_n AS tableId,
+            o.fromId_n AS fromId,
+            o.start_dt AS startDate,
+            o.end_dt AS endDate,
+            o.totalMinute_n AS totalMinute,
+            o.cashier_x AS cashier,
+            o.evaluateCost_n AS evaluateCost,
+            o.otherCost_n AS otherCost,
+            o.amount_n AS amount,
+            o.actualAmount_n AS actualAmount,
+            o.note_x AS note,
+            o.status_c AS status,
+            o.create_dt AS createDate,
+            t.name_x AS tableName,
+            t.typeName_x AS typeName,
+            DATE_FORMAT(o.start_dt, '%Y-%m-%d %H:%i') AS startDateStr,
+            DATE_FORMAT(o.end_dt, '%Y-%m-%d %H:%i') AS endDateStr,
+            DATE_FORMAT(o.create_dt, '%Y-%m-%d %H:%i') AS createDateStr
+        FROM thcs_order o
+        LEFT JOIN thcs_table t ON t.tableId_n = o.tableId_n
+        WHERE o.tableId_n = #{tableId, jdbcType=INTEGER} AND o.status_c = #{inServiceStatus, jdbcType=VARCHAR}
+    </select>
+    
+    <update id="updateOrder" parameterType="com.me.entity.Order">
+        UPDATE thcs_order SET
+        <trim suffixOverrides=",">
+            <if test="fromId!=null">
+                fromId_n = #{fromId, jdbcType=INTEGER},
+            </if>
+            <if test="endDate!=null">
+                end_dt = #{endDate, jdbcType=TIMESTAMP},
+            </if>
+            <if test="totalMinute!=null">
+                totalMinute_n = #{totalMinute, jdbcType=INTEGER},
+            </if>
+            <if test="cashier!=null and cashier!=''">
+                cashier_x = #{cashier, jdbcType=VARCHAR},
+            </if>
+            <if test="evaluateCost!=null">
+                evaluateCost_n = #{evaluateCost, jdbcType=FLOAT},
+            </if>
+            <if test="otherCost!=null">
+                otherCost_n = #{otherCost, jdbcType=FLOAT},
+            </if>
+            <if test="amount!=null">
+                amount_n = #{amount, jdbcType=FLOAT},
+            </if>
+            <if test="actualAmount!=null">
+                actualAmount_n = #{actualAmount, jdbcType=FLOAT},
+            </if>
+            <if test="note!=null and note!=''">
+                note_x = #{note, jdbcType=VARCHAR},
+            </if>
+            <if test="status!=null and status!=''">
+                status_c = #{status, jdbcType=VARCHAR},
+            </if>
+        </trim>
+        WHERE orderId_n = #{orderId, jdbcType=INTEGER}
+    </update>
+
+    <update id="cancelOrder">
+        UPDATE thcs_order SET status_c = #{cancelStatus, jdbcType=VARCHAR} WHERE tableId_n = #{tableId, jdbcType=INTEGER} AND status_c = #{inServiceStatus, jdbcType=VARCHAR}
+    </update>
+    
+    <update id="updateStatusByTableId">
+        UPDATE thcs_order SET status_c = #{status, jdbcType=VARCHAR} WHERE status_c = #{inServiceStatus, jdbcType=VARCHAR} AND tableId_n = #{tableId, jdbcType=INTEGER}
+    </update>
+
+    <select id="listOrderData" parameterType="java.lang.String" resultType="com.me.entity.Order">
+        SELECT
+            o.orderId_n AS orderId,
+            o.tableId_n AS tableId,
+            o.fromId_n AS fromId,
+            o.start_dt AS startDate,
+            o.end_dt AS endDate,
+            o.totalMinute_n AS totalMinute,
+            o.cashier_x AS cashier,
+            o.evaluateCost_n AS evaluateCost,
+            o.otherCost_n AS otherCost,
+            o.amount_n AS amount,
+            o.actualAmount_n AS actualAmount,
+            o.note_x AS note,
+            o.status_c AS status,
+            o.create_dt AS createDate,
+            t.name_x AS tableName,
+            t.typeName_x AS typeName,
+            DATE_FORMAT(o.start_dt, '%Y-%m-%d %H:%i') AS startDateStr,
+            DATE_FORMAT(o.end_dt, '%Y-%m-%d %H:%i') AS endDateStr,
+            DATE_FORMAT(o.create_dt, '%Y-%m-%d %H:%i') AS createDateStr
+        FROM thcs_order o
+        LEFT JOIN thcs_table t ON t.tableId_n = o.tableId_n
+        <if test="status!=null and status!=''">
+            WHERE o.status_c = #{status, jdbcType=VARCHAR}
+        </if>
+        ORDER BY o.create_dt DESC
+        LIMIT 0, 300
+    </select>
+
+    <select id="listOrderInRange" resultType="com.me.entity.Order">
+        SELECT
+            o.orderId_n AS orderId,
+            o.tableId_n AS tableId,
+            o.fromId_n AS fromId,
+            o.start_dt AS startDate,
+            o.end_dt AS endDate,
+            o.totalMinute_n AS totalMinute,
+            o.cashier_x AS cashier,
+            o.evaluateCost_n AS evaluateCost,
+            o.otherCost_n AS otherCost,
+            o.amount_n AS amount,
+            o.actualAmount_n AS actualAmount,
+            o.note_x AS note,
+            o.status_c AS status,
+            o.create_dt AS createDate,
+            DATE_FORMAT(o.start_dt, '%Y-%m-%d') AS startDateStr,
+            DATE_FORMAT(o.end_dt, '%Y-%m-%d') AS endDateStr
+        FROM thcs_order o
+        WHERE o.start_dt <![CDATA[>=]]> #{start, jdbcType=TIMESTAMP} AND o.start_dt &lt; #{end, jdbcType=TIMESTAMP} AND o.status_c = #{status, jdbcType=VARCHAR}
+        ORDER BY o.start_dt ASC
+    </select>
+
+</mapper>
